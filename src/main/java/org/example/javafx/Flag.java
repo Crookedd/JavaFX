@@ -8,15 +8,15 @@ import javafx.stage.Stage;
 
 public class Flag extends Application {
 
-    private String color1 = "Красный";
-    private String color2 = "Зеленый";
-    private String color3 = "Белый";
+    private String color1;
+    private String color2;
+    private String color3;
 
     @Override
     public void start(Stage stage) {
         stage.setTitle("Текстовый флаг");
 
-        // Создание радиокнопок для выбора цвета
+        // Создание радио кнопок для выбора цвета
         ToggleGroup group1 = new ToggleGroup();
         ToggleGroup group2 = new ToggleGroup();
         ToggleGroup group3 = new ToggleGroup();

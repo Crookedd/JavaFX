@@ -10,6 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.util.Stack;
+
 public class Calculator extends Application {
     private TextField inputField;
     private final StringBuilder currentInput = new StringBuilder();
@@ -94,31 +96,46 @@ public class Calculator extends Application {
 
     private String evaluateExpression(String expression) {
         String[] tokens = expression.split(" ");
-        double result = Double.parseDouble(tokens[0]);
+        Stack<Double> values = new Stack<>();
+        Stack<String> operators = new Stack<>();
 
-        for (int i = 1; i < tokens.length; i += 2) {
-            String operator = tokens[i];
-            double nextValue = Double.parseDouble(tokens[i + 1]);
-
-            switch (operator) {
-                case "+":
-                    result += nextValue;
-                    break;
-                case "-":
-                    result -= nextValue;
-                    break;
-                case "*":
-                    result *= nextValue;
-                    break;
-                case "/":
-                    if (nextValue == 0) {
-                        throw new ArithmeticException("Деление на ноль");
-                    }
-                    result /= nextValue;
-                    break;
+        for (String token : tokens) {
+            if (token.matches("\\d+")) { // If the token is a number
+                values.push(Double.parseDouble(token));
+            } else if (token.equals("+") || token.equals("-")) {
+                while (!operators.isEmpty() && (operators.peek().equals("*") || operators.peek().equals("/"))) {
+                    values.push(applyOperation(operators.pop(), values.pop(), values.pop()));
+                }
+                operators.push(token);
+            } else if (token.equals("*") || token.equals("/")) {
+                while (!operators.isEmpty() && (operators.peek().equals("*") || operators.peek().equals("/"))) {
+                    values.push(applyOperation(operators.pop(), values.pop(), values.pop()));
+                }
+                operators.push(token);
             }
         }
-        return String.valueOf(result);
+
+        while (!operators.isEmpty()) {
+            values.push(applyOperation(operators.pop(), values.pop(), values.pop()));
+        }
+
+        return String.valueOf(values.pop());
+    }
+
+    private Double applyOperation(String operator, double b, double a) {
+        return switch (operator) {
+            case "+" -> a + b;
+            case "-" -> a - b;
+            case "*" -> a * b;
+            case "/" -> {
+                if (b == 0) {
+                    throw new ArithmeticException("Деление на ноль");
+                }
+                yield a / b;
+            }
+            default -> (double) 0;
+        };
+
     }
 
     private void clearInput() {

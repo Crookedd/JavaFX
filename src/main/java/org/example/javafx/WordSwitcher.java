@@ -15,7 +15,7 @@ public class WordSwitcher extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Перекидыватель слов");
+        primaryStage.setTitle("Перекидывать слова");
 
         inputField = new TextField();
         outputField = new TextField();
@@ -41,9 +41,11 @@ public class WordSwitcher extends Application {
     private void switchWords() {
         if (isForward) {
             outputField.setText(inputField.getText());
+            inputField.clear();
             switchButton.setText("←"); // Меняем стрелку на обратную
         } else {
             inputField.setText(outputField.getText());
+            outputField.clear();
             switchButton.setText("→"); // Меняем стрелку на изначальную
         }
         isForward = !isForward; // Меняем направление
