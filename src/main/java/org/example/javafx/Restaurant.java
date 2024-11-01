@@ -31,6 +31,7 @@ public class Restaurant extends Application {
 
     private final List<CheckBox> dishCheckBoxes = new ArrayList<>();
     private final List<TextField> quantityFields = new ArrayList<>();
+    private final List<Label> errorLabels = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -48,13 +49,40 @@ public class Restaurant extends Application {
             TextField quantityField = new TextField("1");
             quantityField.setPrefWidth(50);
             quantityField.setDisable(true);
+            Label errorLabel = new Label();
+            errorLabel.setStyle("-fx-text-fill: red;"); // Set error label color to red
 
-            checkBox.setOnAction(e -> quantityField.setDisable(!checkBox.isSelected()));
+            // Event filter to allow only positive numbers
+            quantityField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    quantityField.setText(newValue.replaceAll("\\D", ""));
+                    errorLabel.setText("только положительные числа.");
+                } else {
+                    errorLabel.setText(""); // Clear error message
+                    // Ensure that only positive numbers are allowed
+                    if (!newValue.isEmpty() && Integer.parseInt(newValue) <= 0) {
+                        quantityField.setText("1");
+                        errorLabel.setText("должно быть больше нуля.");
+                    }
+                }
+            });
+
+            checkBox.setOnAction(e -> {
+                boolean selected = checkBox.isSelected();
+                quantityField.setDisable(!selected);
+                if (!selected) {
+                    quantityField.clear();
+                    errorLabel.setText(""); // Clear error message when unchecked
+                }
+            });
+
             dishCheckBoxes.add(checkBox);
             quantityFields.add(quantityField);
+            errorLabels.add(errorLabel);
 
             grid.add(checkBox, 0, i);
             grid.add(quantityField, 1, i);
+            grid.add(errorLabel, 2, i); // Add error label to the grid
         }
 
         Button orderButton = new Button("Оформить заказ");

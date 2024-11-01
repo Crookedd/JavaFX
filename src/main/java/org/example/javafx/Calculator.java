@@ -5,7 +5,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -32,6 +31,7 @@ public class Calculator extends Application {
             numberButtons[i].setOnAction(e -> appendToInput(String.valueOf(finalI)));
         }
 
+        Button decimalButton = createButton("."); // Кнопка для десятичной точки
         Button addButton = createButton("+");
         Button subtractButton = createButton("-");
         Button multiplyButton = createButton("*");
@@ -39,6 +39,7 @@ public class Calculator extends Application {
         Button equalsButton = createButton("=");
         Button clearButton = createButton("C");
 
+        decimalButton.setOnAction(e -> appendToInput("."));
         addButton.setOnAction(e -> appendToInput(" + "));
         subtractButton.setOnAction(e -> appendToInput(" - "));
         multiplyButton.setOnAction(e -> appendToInput(" * "));
@@ -58,6 +59,7 @@ public class Calculator extends Application {
             if (i % 3 == 0) row++;
         }
         grid.add(numberButtons[0], 1, row);
+        grid.add(decimalButton, 2, row); // Добавление кнопки для десятичной точки
         grid.add(addButton, 3, 1);
         grid.add(subtractButton, 3, 2);
         grid.add(multiplyButton, 3, 3);
@@ -65,8 +67,9 @@ public class Calculator extends Application {
         grid.add(equalsButton, 2, row);
         grid.add(clearButton, 0, row);
 
-        Scene scene = new Scene(grid, 200, 200);
+        Scene scene = new Scene(grid, 250, 250);
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
@@ -100,7 +103,7 @@ public class Calculator extends Application {
         Stack<String> operators = new Stack<>();
 
         for (String token : tokens) {
-            if (token.matches("\\d+")) { // If the token is a number
+            if (token.matches("\\d+(\\.\\d+)?")) { // Если токен - число (включая дробные)
                 values.push(Double.parseDouble(token));
             } else if (token.equals("+") || token.equals("-")) {
                 while (!operators.isEmpty() && (operators.peek().equals("*") || operators.peek().equals("/"))) {
@@ -133,9 +136,8 @@ public class Calculator extends Application {
                 }
                 yield a / b;
             }
-            default -> (double) 0;
+            default -> 0.0;
         };
-
     }
 
     private void clearInput() {
@@ -144,8 +146,10 @@ public class Calculator extends Application {
     }
 
     private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Ошибка");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
